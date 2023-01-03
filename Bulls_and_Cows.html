@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bulls and Cows</title>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', ()=>{
+            const answer = []
+            let count = 1;
+            let boxes
+
+            // 페이지 제목 생성
+            document.body.style.textAlign = 'center'
+            const createH1 = document.createElement('h1')
+            createH1.textContent = 'Bulls and Cows'
+            document.body.appendChild(createH1)
+
+            // 중복되지 않는 4개의 숫자 생성
+            const makingAnswer = () => {
+                let number = `${Math.floor(Math.random() * (9 - 0 + 1) + 0)}`
+                if (answer.length < 4) {
+                    if (answer.indexOf(number) < 0) {
+                        answer.push(number)
+                    }
+                    makingAnswer()
+                } 
+            }
+
+            makingAnswer()
+            console.log(answer)
+
+            // 박스를 담을 div를 생성하는 함수
+            const createDiv = (count) => {
+                const createDiv = document.createElement('div')
+                document.body.appendChild(createDiv)
+                createDiv.setAttribute('class', `create_box_${count}`)
+                const div = document.querySelector(`.create_box_${count}`)
+                for (i = 0; i < 4; i++) {
+                    createBox(i)
+                }
+            }
+
+            // 박스를 생성하는 함수(박스 타입 및 디자인 지정)
+            const createBox = (number) => {
+                const box = document.createElement('input')
+                box.type = 'number'
+                box.setAttribute('class', `box box${number}`)
+                box.style.border = '1px solid gray'
+                box.style.borderRadius = '20px'
+                box.style.width = '100px'
+                box.style.height = '100px'
+                box.style.fontSize = '2rem'
+                box.style.textAlign = 'center'
+                box.style.margin = '10px'
+                document.body.appendChild(box)
+                boxes = document.querySelectorAll(`.box`)
+            }
+
+            createDiv(count)
+            
+            // 숫자를 입력하면 자동으로 다음 칸으로 포커스가 이동하게 됨
+            const moveFocus = ()=>{
+                for(let i = 0; i < boxes.length; i++) {
+                    boxes[i].addEventListener('keyup', ()=>{
+                        if (boxes[i].value.length === 1) {
+                            boxes[i].setAttribute("data-disabled", boxes[i].disabled)
+                            boxes[i].disabled = true
+                            if (i === boxes.length - 1) {
+                                boxes.forEach((box)=>{
+                                    box.setAttribute('class', ``)
+                                })
+                                let flag = matchTheAnswer()
+                                if (flag) {
+                                    alert(`정답입니다!!\n정답 맞추는 데 걸린 횟수 : ${count}`)
+                                    const restart = document.createElement('button')
+                                    restart.innerHTML = `<a href="./Bulls_and_Cows.html" style="text-decoration:none">START OVER</a>`
+                                    restart.style.display = 'block'
+                                    restart.style.margin = '30px auto'
+                                    document.body.appendChild(restart)
+                                } else {
+                                    count++
+                                    vibration()
+                                    createDiv(count)
+                                    boxes[0].focus()
+                                    moveFocus()
+                                }
+                            } else {
+                                boxes[i + 1].focus()
+                            }
+                        }
+                    })
+                }
+            }
+
+            moveFocus()
+
+            // 각 입력 값 별로 true/false 값을 받음
+            const matchTheAnswer = ()=>{
+                let flag0 = matching(0)
+                let flag1 = matching(1)
+                let flag2 = matching(2)
+                let flag3 = matching(3)
+
+                if (flag0 && flag1 && flag2 && flag3) {
+                    return true
+                } else {
+                    return false
+                }
+            }
+
+            // answer의 값과 입력된 값을 비교해서 백그라운드 색을 변경함
+            const matching = (number) => {
+                if (boxes[number].value === answer[number]) {
+                    boxes[number].style.backgroundColor = 'green'
+                    return true
+                } else if (answer.includes(boxes[number].value)) {
+                    boxes[number].style.backgroundColor = 'yellow'
+                    return false
+                } else {
+                    boxes[number].style.backgroundColor = 'red'
+                    return false
+                }
+            }
+
+            // 답이 틀렸을 때 박스가 흔들리는 효과를 주기 위한 함수
+            const vibration = ()=>{
+                boxes.forEach((box)=>{
+                    box.classList.add('vibration')
+                    setTimeout(()=>{
+                        box.classList.remove('vibration')
+                    }, 500)
+                })
+            }
+        })
+    </script>
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .vibration {
+            animation: vibration 0.1s infinite;
+        }
+
+        @keyframes vibration {
+            from {
+                transform: rotate(5deg);
+            }
+            to {
+                transform: rotate(-5deg);
+            }
+        }
+    </style>
+</head>
+<body></body>
+</html>
